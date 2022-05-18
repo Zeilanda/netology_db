@@ -1,0 +1,24 @@
+CREATE TABLE genres(
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(24)
+);
+
+CREATE TABLE singers(
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(40) NOT NULL,
+	genre_id INTEGER REFERENCES genres
+);
+
+CREATE TABLE albums(
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(40) NOT NULL,
+	release_date DATE NOT NULL,
+	singer_id INTEGER REFERENCES singers
+);
+
+CREATE TABLE tracks(
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(40) NOT NULL,
+	duration NUMERIC(2,2),
+	album_id INTEGER REFERENCES albums
+)
