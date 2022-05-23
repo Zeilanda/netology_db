@@ -1,24 +1,47 @@
-CREATE TABLE genres(
+CREATE TABLE IF NOT EXISTS Genres(
 	id SERIAL PRIMARY KEY,
-	name VARCHAR(24)
+	name VARCHAR(24) NOT NULL UNIQUE
 );
 
-CREATE TABLE singers(
+CREATE TABLE IF NOT EXISTS Singers(
 	id SERIAL PRIMARY KEY,
-	name VARCHAR(40) NOT NULL,
-	genre_id INTEGER REFERENCES genres
+	name VARCHAR(40) NOT NULL
 );
 
-CREATE TABLE albums(
-	id SERIAL PRIMARY KEY,
-	name VARCHAR(40) NOT NULL,
-	release_date DATE NOT NULL,
-	singer_id INTEGER REFERENCES singers
+CREATE table IF NOT EXISTS GenresSingers(
+    id SERIAL PRIMARY KEY,
+    genre_id INTEGER NOT NULL REFERENCES Genres(id),
+    singer_id INTEGER NOT NULL REFERENCES Singers(id)
 );
 
-CREATE TABLE tracks(
+
+CREATE TABLE IF NOT EXISTS Albums(
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(40) NOT NULL,
-	duration NUMERIC(2,2),
-	album_id INTEGER REFERENCES albums
-)
+	release_date DATE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS SingersAlbums(
+    id SERIAL PRIMARY KEY,
+    singer_id INTEGER NOT NULL REFERENCES Singers(id),
+    album_id INTEGER NOT NULL REFERENCES Albums(id)
+);
+
+CREATE TABLE IF NOT EXISTS Tracks(
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(40) NOT NULL,
+	duration NUMERIC(4,2),
+	album_id INTEGER NOT NULL REFERENCES Albums(id)
+);
+
+CREATE TABLE IF NOT EXISTS Collections(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(60) NOT NULL,
+    release_date DATE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS TracksCollections(
+    id SERIAL PRIMARY KEY,
+    tracks_id INTEGER NOT NULL REFERENCES Tracks(id),
+    collections_id INTEGER NOT NULL REFERENCES Collections(id)
+);
