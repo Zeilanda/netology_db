@@ -43,7 +43,7 @@ FROM albums INNER JOIN tracks t on albums.id = t.album_id
 WHERE date_part('year', release_date) BETWEEN 2019 AND 2020;
 
 /* средняя продолжительность треков по каждому альбому */
-SELECT a.name as Название_альбома, AVG(duration_sec) as Средняя_продолжительность_треков
+SELECT a.name as album_name, AVG(duration_sec) as avg_track_duration
 FROM tracks INNER JOIN albums a on a.id = tracks.album_id
 GROUP BY a.name;
 
@@ -60,46 +60,30 @@ ORDER BY s.name;
 
 
 -- названия сборников, в которых присутствует конкретный исполнитель (выберите сами)
-SELECT chosen_collections.name
+SELECT DISTINCT c.name
 FROM singers as s
-INNER JOIN (
-    SELECT singer_id, name
-    FROM singersalbums as sa
-    INNER JOIN
-        (SELECT album_id, collection_table.name
-        FROM tracks as tr
-        INNER JOIN (
-            SELECT c.name, t.tracks_id
-            FROM collections AS c INNER JOIN trackscollections t on c.id = t.collections_id) as collection_table
-            ON tr.id = collection_table.tracks_id
-        ) as tracks_coll_table
-    ON sa.id = tracks_coll_table.album_id
-    ) as chosen_collections
-ON s.id = chosen_collections.singer_id
+INNER JOIN singersalbums as sa on s.id = sa.singer_id
+INNER JOIN tracks as t on sa.album_id = t.album_id
+INNER JOIN trackscollections as tc on t.id = tc.tracks_id
+INNER JOIN collections as c on tc.collections_id = c.id
 WHERE s.name = 'ZZ Top';
+
 
 -- название альбомов, в которых присутствуют исполнители более 1 жанра
 SELECT name
-FROM (SELECT genre_id, gs.singer_id, name
-    FROM genressingers as gs
-    LEFT JOIN (
-        SELECT singer_id, name
-        FROM singersalbums as sa
-        LEFT JOIN (
-            SELECT al.id, al.name
-            FROM albums as al
-            ) as album_info
-            ON sa.album_id = album_info.id
-        ) as temple_table
-    ON gs.singer_id = temple_table.singer_id) as final_table
+FROM genressingers
+LEFT JOIN  singersalbums as sa on genressingers.singer_id = sa.singer_id
+LEFT JOIN albums as a on a.id = sa.album_id
 GROUP BY name
-HAVING COUNT(genre_id) > 1
+HAVING COUNT(genre_id) > 1;
+
+
 
 -- наименование треков, которые не входят в сборники
 SELECT name
 FROM tracks
 LEFT JOIN trackscollections t on tracks.id = t.tracks_id
-WHERE collections_id IS NULL
+WHERE collections_id IS NULL;
 
 -- исполнителя(-ей), написавшего самый короткий по продолжительности трек (теоретически таких треков может быть несколько)
 
